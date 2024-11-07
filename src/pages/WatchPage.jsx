@@ -18,6 +18,12 @@ const WatchPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+    }
+  }, [location.search]);
+
   const getQParams = (query) => {
     return new URLSearchParams(query);
   };
@@ -69,59 +75,65 @@ const WatchPage = () => {
   }, [location.search]);
 
   // useEffect hook to fetch channel info for thumbnail and title
-  // useEffect(() => {
-  //   const fetchChannelInfo = async () => {
-  //     setChannelInfoLoading(true);
-  //     if (token !== null && token !== undefined && token !== "") {
-  //       console.log(channelId);
-  //       const res = await fetch(
-  //         `http://localhost:3001/channel_info?channel_id=${channelId}`,
-  //         {
-  //           method: "GET",
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //             Accept: "application/json",
-  //             Authorization: `Bearer ${token}`,
-  //           },
-  //         }
-  //       );
-  //       const data = await res.json();
-  //       console.log("channeIf", data);
-  //       setChannelInfo(data);
-  //       setChannelInfoLoading(false);
-  //     } else {
-  //       navigate("/login");
-  //     }
-  //   };
-  //   fetchChannelInfo();
-  // }, [channelId, navigate.search]);
 
-  // useEffect(() => {
-  //   const fetchRelatedVideos = async () => {
-  //     setRelatedVideosLoading(true);
-  //     if (token !== null && token !== undefined && token !== "") {
-  //       console.log(videoId);
-  //       const res = await fetch(
-  //         `http://localhost:3001/related_videos?video_id=${videoId}`,
-  //         {
-  //           method: "GET",
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //             Accept: "application/json",
-  //             Authorization: `Bearer ${token}`,
-  //           },
-  //         }
-  //       );
-  //       const data = await res.json();
-  //       console.log("relatedVideos:", data);
-  //       setRelatedVideos(data);
-  //       setRelatedVideosLoading(false);
-  //     } else {
-  //       return;
-  //     }
-  //   };
-  //   fetchRelatedVideos();
-  // }, [videoId]);
+  useEffect(() => {
+    const fetchChannelInfo = async () => {
+      setChannelInfoLoading(true);
+      if (channelId !== null) {
+        console.log(channelId);
+        const res = await fetch(
+          `http://localhost:3001/channel_info?channel_id=${channelId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = await res.json();
+        console.log("channeIf", data);
+        setChannelInfo(data);
+        setChannelInfoLoading(false);
+      } else {
+        navigate("/login");
+      }
+    };
+    fetchChannelInfo();
+  }, [channelId]);
+
+  useEffect(() => {
+    const fetchRelatedVideos = async () => {
+      setRelatedVideosLoading(true);
+      if (
+        token !== null &&
+        token !== undefined &&
+        token !== "" &&
+        videoId !== null
+      ) {
+        console.log(videoId + "when it matters");
+        const res = await fetch(
+          `http://localhost:3001/related_videos?video_id=${videoId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = await res.json();
+        console.log("relatedVideos:", data);
+        setRelatedVideos(data);
+        setRelatedVideosLoading(false);
+      } else {
+        return;
+      }
+    };
+    fetchRelatedVideos();
+  }, [videoId]);
 
   // const res = await fetch(`http://localhost:3001/related_videos?video_id=${videoId}`, {
   //   method: 'GET',
@@ -162,16 +174,23 @@ const WatchPage = () => {
               </>
             ) : (
               <>
-                {channelInfo?.all_other?.avatar && (
-                  <img
-                    src={channelInfo.all_other.avatar.thumbnails[0].url}
-                    alt=""
-                  />
-                )}
-                {channelInfo?.all_other && (
-                  <a href={`/channel?channelId=${channelId}`}>
-                    <h1>{channelInfo.all_other.title}</h1>
-                  </a>
+                {channelInfo?.all_other?.avatar?.thumbnails[0]?.url.length && (
+                  <>
+                    {/* <img
+                      src={channelInfo?.all_other?.avatar?.thumbnails[0]?.url}
+                      alt="channel thumbnail"
+                    /> */}
+                    <div
+                      style={{
+                        width: "150px",
+                        height: 150,
+                        backgroundImage: `url("${channelInfo?.all_other?.avatar?.thumbnails[0]?.url}")`,
+                      }}
+                    ></div>
+                    <a href={`/channel?channelId=${channelId}`}>
+                      <h1>{channelInfo?.all_other?.title}</h1>
+                    </a>
+                  </>
                 )}
               </>
             )}
@@ -189,16 +208,18 @@ const WatchPage = () => {
         <div className="right-side">
           <>
             {relatedVideosLoading ? (
-              <div className="videos">
+              <div className="videos-home">
                 {Array.from({ length: 20 }).map((_, i) => (
                   <SkeletonLoader key={i} />
                 ))}
               </div>
             ) : (
               <>
-                {relatedVideos?.map((video, i) => {
-                  return <VideoCard key={i} video={video} />;
-                })}
+                {relatedVideos &&
+                  relatedVideos.length > 0 &&
+                  relatedVideos?.map((video, i) => {
+                    return <VideoCard key={i} video={video} />;
+                  })}
               </>
             )}
           </>

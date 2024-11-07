@@ -8,6 +8,7 @@ import Logout from "./Logout";
 import ChannelPage from "./ChannelPage";
 import ProfilePage from "./ProfilePage";
 import FavoritesPage from "./FavoritesPage";
+import EditProfilePage from "./EditProfilePage";
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
         <Route path="/watch" element={<WatchPage />} />
         <Route path="/channel" element={<ChannelPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile/edit" element={<EditProfilePage />} />
         <Route path="/favorites" element={<FavoritesPage />} />
       </Routes>
     </Router>

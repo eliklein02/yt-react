@@ -23,7 +23,7 @@ h1 {
   color: black !important;
 }
 
-.videos {
+.videos-home {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -32,12 +32,13 @@ h1 {
   flex-wrap: wrap;
   width: 90%;
   margin-inline: auto;
+  margin-top: 5vh;
 }
 
 /* form styles */
 
-h1 {
-  color: white;
+.form-header {
+  color: white !important;
   margin: 0;
   padding: 30px 0;
   text-align: center;
@@ -46,17 +47,19 @@ h1 {
 .box {
   font-family: sans-serif;
   background: rgba(0, 0, 0, 0.8);
-  width: 600px;
-  height: auto;
-  border-radius: 5px;
+  width: 100vw;
+  /* height: 100%; */
   padding: 40px;
-  box-sizing: border-box;
-  box-shadow: 5px 10px 15px rgba(0, 0, 0, 0.8);
-  /* Positioning */
-  position: absolute;
+
+  /* position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%); */
+}
+
+.form-container {
+  width: 600px;
+  margin-inline: auto;
 }
 
 fieldset {
@@ -76,7 +79,9 @@ fieldset {
 .input-div-row {
   display: flex;
   flex-direction: row;
-  gap: 0.5rem;
+  align-items: baseline;
+  gap: 1rem;
+  font-size: 20px;
 }
 
 .input-div-row input {
@@ -86,7 +91,7 @@ fieldset {
   width: 13px;
 }
 
-.input-div-row:checked {
+.input-div-row input:checked {
   appearance: none;
   background-color: black;
   height: 13px;
@@ -117,11 +122,12 @@ fieldset {
   outline: none;
   padding: 10px 0;
   color: white;
-  font-size: 18px;
+  font-size: 22px;
   margin-bottom: 30px;
 }
 
 .inputBox label {
+  font-size: 22px;
   color: white;
   position: absolute;
   padding: 10px 0;
@@ -134,7 +140,7 @@ fieldset {
 .inputBox input:focus ~ label,
 .inputBox input:valid ~ label {
   color: yellow;
-  font-size: 16px;
+  font-size: 18px;
   top: -20px;
   transition: 0.5s;
 }
@@ -158,10 +164,16 @@ fieldset {
   transition: 0.3s;
 }
 
-.register-text-class,
+/* .register-text-class,
 .register-text-class a {
   color: white;
   margin-top: 30px;
+} */
+
+.loginTextClass {
+  color: white;
+  font-size: 1.3rem;
+  text-align: center;
 }
 
 .loginTextClass a {
@@ -186,7 +198,7 @@ fieldset {
   flex-direction: row;
   align-items: center;
   gap: 1rem;
-  background-color: #606060;
+  /* background-color: #606060; */
   padding: 0.5rem;
   border-radius: 5px;
 }
@@ -195,23 +207,37 @@ fieldset {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 1rem;
+  /* gap: 1rem; */
 }
 
 .searchBarDiv input,
 .searchBarDiv button {
   padding: 5px;
-  border-radius: 5px;
+  /* border-radius: 5px; */
   border: 1px solid #ccc;
-  font-size: 24px;
+  font-size: 20px;
+  height: 3rem;
 }
 
 .searchBarDiv button {
-  padding-inline: 8px;
+  padding-inline: 25px;
+  display: flex;
+  align-items: center;
+  font-size: 20px;
+  border-top-right-radius: 25px;
+  border-bottom-right-radius: 25px;
+}
+
+.searchBarDiv button:hover {
+  background-color: lightgray;
+  cursor: pointer;
+  /* color: lightgray; */
 }
 
 .searchBarDiv input[type="text"] {
-  width: 300px;
+  width: 350px;
+  border-top-left-radius: 25px;
+  border-bottom-left-radius: 25px;
 }
 
 /* .searchBarDiv input[type="submit"] {
@@ -222,7 +248,7 @@ fieldset {
   color: white;
 } */
 
-.profile-image-div {
+.profile-initials-div {
   border-radius: 50%;
   border: 1px solid white;
   padding: 1rem;
@@ -231,6 +257,18 @@ fieldset {
   justify-content: center;
   font-size: 1.2rem;
   cursor: pointer;
+}
+
+.profileModal {
+  display: block;
+  position: absolute;
+  top: 7vh;
+  right: 0;
+  height: 30vh;
+  width: 15vw;
+  background-color: #ccc;
+  border-radius: 5px;
+  padding: 1rem;
 }
 
 /* video card styles */
@@ -433,11 +471,106 @@ h4 {
   margin: 0;
 }
 
-.videos {
+.videos-channel {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 1rem;
   flex-wrap: wrap;
+  margin-top: 5vh;
+}
+
+/* profile page styles */
+.dashboard-container {
+  max-width: 800px;
+  margin: auto;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.details-container {
+  margin-top: 20px;
+  font-size: 18px;
+  color: #333;
+}
+
+.details-container .detail-item {
+  margin-bottom: 10px;
+}
+
+.highlight {
+  font-weight: bold;
+  color: #2980b9;
+}
+
+.btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  background-color: #4caf50;
+  color: white;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn:hover {
+  background-color: #45a049;
+}
+
+/* edit profile page */
+
+.form-container-edit-profile {
+  width: 30%;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.form-container-edit-profile label {
+  font-size: 14px;
+  color: #555;
+}
+
+.form-container-edit-profile input[type="text"],
+.form-container-edit-profile input[type="email"] {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.btn-edit-profile {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  background-color: #4caf50;
+  color: white;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn-profile-page:hover {
+  background-color: #45a049;
+}
+
+.filter-btn {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #f39c12;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.filter-btn:hover {
+  background-color: #e67e22;
 }

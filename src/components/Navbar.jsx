@@ -1,16 +1,18 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useFetchApi } from "../tools/useFetchApi";
 let loading = false;
 const searchIcon = "/public/search-icon.svg";
 
-const Navbar = ({ passResultsUpDown, setLoading }) => {
+const Navbar = ({ passResultsUpDown, setLoading, currentPage }) => {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [user, setUser] = useState({});
   const navigate = useNavigate();
   const [q, setQ] = useState("");
   const [errors, setErrors] = useState(null);
-
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const fetchApi = useFetchApi();
   // set search query state to the input
   const handleSearchInputChange = (e) => {
     const v = e.target.value;
@@ -24,14 +26,12 @@ const Navbar = ({ passResultsUpDown, setLoading }) => {
       return;
     }
     setLoading(true);
-    const res = await fetch(`http://localhost:3001/search?q=${q}`, {
-      method: "GET",
+    const data = await fetchApi(`http://localhost:3001/search?q=${q}`, {
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
-    const data = await res.json();
+    // const data = await res.json();
     setLoading(false);
     passResultsUpDown(data);
   };
@@ -76,28 +76,73 @@ const Navbar = ({ passResultsUpDown, setLoading }) => {
     const fullInitials = firstInitial + lastInitial;
     return fullInitials;
   };
+
+  const handleShowProfileModal = () => {
+    setShowProfileModal(!showProfileModal);
+  };
+
+  const handleShowProfileModalFullNavbar = () => {
+    showProfileModal === true
+      ? setShowProfileModal(!setShowProfileModal)
+      : setShowProfileModal(showProfileModal);
+  };
   return (
     <>
-      <div className="topBar">
+      <div className="topBar" onMouseLeave={handleShowProfileModalFullNavbar}>
         <a href="/">
-          <div className="logoDiv">
+          {/* <div className="logoDiv">
             <img src="https://picsum.photos/seed/picsum/50/50" alt="" />
-          </div>
+          </div> */}
+          <i className="fa-solid fa-play fa-2xl"></i>
         </a>
 
-        <div className="searchBarDiv">
-          <form onSubmit={search}>
-            <input type="text" value={q} onChange={handleSearchInputChange} />
-            <button type="submit">
-              <img src="/search-icon.svg" alt="Search Icon" />{" "}
-              {/* Reference the icon from the public directory */}
-            </button>
-          </form>
-        </div>
+        {currentPage === "homePage" && (
+          <>
+            <div className="searchBarDiv">
+              <form onSubmit={search}>
+                <input
+                  type="text"
+                  value={q}
+                  onChange={handleSearchInputChange}
+                />
+                <button type="submit">
+                  <i className="fa-solid fa-magnifying-glass"></i>
+                  {/* Reference the icon from the public directory */}
+                </button>
+              </form>
+            </div>
+          </>
+        )}
 
-        <Link className="profile-image-div" to={"/profile"}>
+        <Link
+          className="profile-initials-div"
+          to={"/profile"}
+          onMouseEnter={handleShowProfileModal}
+        >
           {initials(user.first_name, user.last_name)}
         </Link>
+
+        <div
+          className="profileModal"
+          style={{ display: showProfileModal ? "block" : "none" }}
+          onMouseLeave={handleShowProfileModal}
+        >
+          {/* <div className="close-modal">
+            <button onClick={handleShowProfileModal}>X</button>
+          </div> */}
+          <Link
+            style={{
+              color: "black",
+              textDecoration: "underline",
+              display: "block",
+              fontSize: "1.5rem",
+            }}
+            to={"/logout"}
+          >
+            Log out
+          </Link>
+          <Link to={"/profile"}>View Profile</Link>
+        </div>
       </div>
     </>
   );

@@ -94,7 +94,7 @@ const FavoritesPage = () => {
         <p>Loading...</p>
       ) : (
         <>
-          <div className="videos">
+          <div className="videos-home">
             {favorites?.map((d) => (
               <a
                 href={`/watch?videoId=${d.id}&channelId=${d.channelId}&videoTitle=${d.title}`}
