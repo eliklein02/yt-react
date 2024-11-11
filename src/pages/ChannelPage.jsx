@@ -2,27 +2,47 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import VideoCard from "../components/VideoCard";
 import Navbar from "../components/Navbar";
+import { fetchUser } from "../tools/utils";
 
 const ChannelPage = () => {
   const [next, setNext] = useState(null);
+
   const [token, setToken] = useState(localStorage.getItem("token"));
+
   const [channelInfo, setChannelInfo] = useState(null);
+
   const [channelTitle, setChannelTitle] = useState("");
+
   const [channelSubscriberCount, setChannelSubscriberCount] = useState("");
+
+  const [channelVideos, setChannelVideos] = useState([]);
+
   const [channelId, setChannelId] = useState(null);
+
   const [channelInfoLoading, setChannelInfoLoading] = useState(false);
+
   const [thumbnailUrl, setThumbnailUrl] = useState("");
+
   const location = useLocation();
+
   const navigate = useNavigate();
 
   const getQParams = (query) => {
     return new URLSearchParams(query);
   };
 
+  // use effect to redirect if no token exists and if yes to fetch the user and store it in user state
   useEffect(() => {
-    if (!token) {
-      navigate("/login");
-    }
+    const getUser = async () => {
+      const response = await fetchUser(token);
+      if (response === "not logged in") {
+        navigate("/login");
+      }
+      if (response?.message && response?.message === "token is not valid") {
+        navigate("logout");
+      }
+    };
+    getUser();
   }, [location.search]);
 
   useEffect(() => {
@@ -36,8 +56,8 @@ const ChannelPage = () => {
     if (channelId) {
       let url =
         next == null
-          ? `http://localhost:3001/channel_info?channel_id=${channelId}`
-          : `http://localhost:3001/channel_info?channel_id=${channelId}&next=${next}`;
+          ? `${process.env.REACT_APP_API_URL}/channel_info?channel_id=${channelId}`
+          : `${process.env.REACT_APP_API_URL}/channel_info?channel_id=${channelId}&next=${next}`;
       console.log(channelId);
       // console.log(url);
       const res = await fetch(url, {
@@ -52,6 +72,7 @@ const ChannelPage = () => {
       // console.log("channeIf", data);
       setChannelInfo((prevData) => ({ ...prevData, ...data }));
       setThumbnailUrl(data?.all_other?.avatar?.thumbnails[0].url);
+      setChannelVideos((prev) => [...prev, ...data.videos]);
       setChannelTitle(data?.all_other?.title);
       setChannelSubscriberCount(data?.all_other?.subscriberCountText);
       setNext(data.next);
@@ -63,6 +84,7 @@ const ChannelPage = () => {
 
   useEffect(() => {
     console.log("channelInfo", channelInfo);
+    console.log("channel videos", channelVideos);
   }, [channelInfo]);
 
   useEffect(() => {
@@ -114,10 +136,16 @@ const ChannelPage = () => {
           )}
         </div>
         <div className="videos-channel">
-          {channelInfo?.videos?.map((video) => (
-            <VideoCard video={video} key={video.videoId} />
-          ))}
-          <button onClick={fetchChannelInfo}>More Videos</button>
+          {channelVideos.length > 0 && (
+            <>
+              {channelVideos?.map((video) => (
+                <VideoCard video={video} key={video.videoId} />
+              ))}
+            </>
+          )}
+          <button className="load-more-btn" onClick={fetchChannelInfo}>
+            More Videos
+          </button>
         </div>
       </div>
     </>

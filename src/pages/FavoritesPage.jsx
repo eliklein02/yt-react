@@ -2,6 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { fetchUser } from "../tools/utils";
 
 const FavoritesPage = () => {
   const navigate = useNavigate();
@@ -12,12 +13,28 @@ const FavoritesPage = () => {
   const [favoritesLoadingFromRails, setFavoritesLoadingFromRails] =
     useState(true);
   const [favoritesLoadingFromAPI, setFavoritesLoadingFromAPI] = useState(true);
+  const [user, setUser] = useState({});
 
   const truncateTitle = (title, maxLength) => {
     return title.length > maxLength
       ? title.substring(0, maxLength) + "..."
       : title;
   };
+
+  // use effect to redirect if no token exists and if yes to fetch the user and store it in user state
+  useEffect(() => {
+    const getUser = async () => {
+      const response = await fetchUser(token);
+      if (response === "not logged in") {
+        navigate("/login");
+      }
+      if (response?.message && response?.message === "token is not valid") {
+        navigate("logout");
+      }
+      setUser(response.user);
+    };
+    getUser();
+  }, [location.search]);
 
   const viewCountFormat = (count) => {
     try {
@@ -30,14 +47,17 @@ const FavoritesPage = () => {
 
   useEffect(() => {
     const getFavorites = async () => {
-      const response = await fetch("http://localhost:3001/favorites", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/favorites`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const res = await response.json();
       if (res.status == "success") {
         setFavoriteIds(res.favorite_videos);
@@ -100,8 +120,8 @@ const FavoritesPage = () => {
                 href={`/watch?videoId=${d.id}&channelId=${d.channelId}&videoTitle=${d.title}`}
                 target="_self"
               >
-                <div class="video-card">
-                  <div class="thumbnail">
+                <div className="video-card">
+                  <div className="thumbnail">
                     <img
                       src={
                         d.thumbnail[2]?.url
@@ -110,19 +130,19 @@ const FavoritesPage = () => {
                       }
                       alt="Video Thumbnail"
                     />
-                    <span class="duration">{d.lengthSeconds}</span>
+                    <span className="duration">{d.lengthSeconds}</span>
                   </div>
-                  <div class="content">
-                    {/* <img class="channel-icon" src="https://yt3.ggpht.com/ytc/AIdro_m9CJFVl3bEWvGnNnN4G9ErBO2lTpKePWCjx_FQtLWaDww=s68-c-k-c0x00ffffff-no-rj" alt="Channel Icon" /> */}
-                    <div class="video-info">
-                      <div class="title">{truncateTitle(d.title, 55)}</div>
-                      <div class="channel-name">
+                  <div className="content">
+                    {/* <img className="channel-icon" src="https://yt3.ggpht.com/ytc/AIdro_m9CJFVl3bEWvGnNnN4G9ErBO2lTpKePWCjx_FQtLWaDww=s68-c-k-c0x00ffffff-no-rj" alt="Channel Icon" /> */}
+                    <div className="video-info">
+                      <div className="title">{truncateTitle(d.title, 55)}</div>
+                      <div className="channel-name">
                         {d.channelTitle}
-                        {/* <svg class="verified" viewBox="0 0 24 24">
+                        {/* <svg className="verified" viewBox="0 0 24 24">
                                               <path d="M12,2C6.5,2,2,6.5,2,12c0,5.5,4.5,10,10,10s10-4.5,10-10C22,6.5,17.5,2,12,2z M9.8,17.3l-4.2-4.1L7,11.8l2.8,2.7L17,7.4 l1.4,1.4L9.8,17.3z" fill="currentColor"></path>
                                           </svg> */}
                       </div>
-                      <div class="metadata">
+                      <div className="metadata">
                         {viewCountFormat(d.viewCount)} views • {d.uploadDate}{" "}
                       </div>
                     </div>

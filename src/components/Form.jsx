@@ -2,12 +2,22 @@ import React, { useState, useEffect } from "react";
 import "../styles/FormPage.module.css";
 // import styles from '../styles/FormPage.module.css'
 import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-
-let errors;
+import { useNavigate, useLocation } from "react-router-dom";
+import { toast, Bounce } from "react-toastify";
 
 const Form = ({ accountState }) => {
+  const toastifyLoginSuccess = () => {
+    toast("You are logged in!");
+  };
+  const [errors, setErrors] = useState([]);
+
   const navigate = useNavigate();
+
+  const location = useLocation();
+
+  const [loggingIn, setLoggingIn] = useState(false);
+
+  const [registering, setRegistering] = useState(false);
 
   const [radioValue, setRadioValue] = useState("");
 
@@ -22,36 +32,61 @@ const Form = ({ accountState }) => {
 
   const login = async (e) => {
     e.preventDefault();
+    setLoggingIn(true);
     try {
-      const response = await fetch("http://localhost:3001/login", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
         body: JSON.stringify({
-          user: {
-            email: data.email,
-            password: data.password,
-          },
+          email: data.email,
+          password: data.password,
         }),
       });
       const res = await response.json();
-      if (res.error) {
-        errors = res.errors;
+      if (res.login_error) {
+        console.log(res);
+        toast.error("Wrong username or pasword", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
+        setErrors(res.message);
       } else {
+        console.log(res);
         localStorage.setItem("token", res.token);
+        toast.success("Logged In Successfully!", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
         navigate("/");
       }
     } catch (error) {
       console.log("Login failed:", error);
     }
+    setLoggingIn(false);
   };
 
   const register = async (e) => {
     e.preventDefault();
+    setRegistering(true);
     try {
-      const response = await fetch("http://localhost:3001/signup", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -71,15 +106,39 @@ const Form = ({ accountState }) => {
       });
       const res = await response.json();
       console.log(res);
-      if (res.errors) {
-        errors = res.errors;
+      if (res.register_error) {
+        console.log(res);
+        toast.error(`${res.errors[0]}`, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
+        setErrors(res.errors[0]);
       } else {
         localStorage.setItem("token", res.token);
+        toast.success("Registered and Logged In Successfully!", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
         navigate("/");
       }
     } catch (error) {
       console.log("Login failed:", error);
     }
+    setRegistering(false);
   };
 
   const handleRadioChange = (e) => {
@@ -97,6 +156,7 @@ const Form = ({ accountState }) => {
     });
     console.log(data);
   };
+
   return (
     <>
       <div
@@ -276,7 +336,17 @@ const Form = ({ accountState }) => {
                 </fieldset>
               </>
             )}
-            <input type="submit" value="Submit" />
+            {accountState === "registering" ? (
+              <input
+                type="submit"
+                value={registering ? "Registering..." : "Register"}
+              />
+            ) : (
+              <input
+                type="submit"
+                value={loggingIn ? "Logging In..." : "Log In"}
+              />
+            )}
           </form>
           <p className="loginTextClass">
             {accountState === "logging in" ? (

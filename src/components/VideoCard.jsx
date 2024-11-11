@@ -27,8 +27,8 @@ const VideoCard = ({ video }) => {
         }&videoTitle=${video.video.title}`}
         target="_self"
       >
-        <div class="video-card">
-          <div class="thumbnail">
+        <div className="video-card">
+          <div className="thumbnail">
             <img
               src={
                 video.video.thumbnails[1]?.url
@@ -37,19 +37,21 @@ const VideoCard = ({ video }) => {
               }
               alt="Video Thumbnail"
             />
-            <span class="duration">{video.video.lengthText}</span>
+            <span className="duration">{video.video.lengthText}</span>
           </div>
-          <div class="content">
-            {/* <img class="channel-icon" src="https://yt3.ggpht.com/ytc/AIdro_m9CJFVl3bEWvGnNnN4G9ErBO2lTpKePWCjx_FQtLWaDww=s68-c-k-c0x00ffffff-no-rj" alt="Channel Icon" /> */}
-            <div class="video-info">
-              <div class="title">{truncateTitle(video.video.title, 55)}</div>
-              <div class="channel-name">
+          <div className="content">
+            {/* <img className="channel-icon" src="https://yt3.ggpht.com/ytc/AIdro_m9CJFVl3bEWvGnNnN4G9ErBO2lTpKePWCjx_FQtLWaDww=s68-c-k-c0x00ffffff-no-rj" alt="Channel Icon" /> */}
+            <div className="video-info">
+              <div className="title">
+                {truncateTitle(video.video.title, 55)}
+              </div>
+              <div className="channel-name">
                 {video.video.channelName}
-                {/* <svg class="verified" viewBox="0 0 24 24">
+                {/* <svg className="verified" viewBox="0 0 24 24">
                                     <path d="M12,2C6.5,2,2,6.5,2,12c0,5.5,4.5,10,10,10s10-4.5,10-10C22,6.5,17.5,2,12,2z M9.8,17.3l-4.2-4.1L7,11.8l2.8,2.7L17,7.4 l1.4,1.4L9.8,17.3z" fill="currentColor"></path>
                                 </svg> */}
               </div>
-              <div class="metadata">
+              <div className="metadata">
                 {viewCountFormat(video.video.viewCountText)} views •{" "}
                 {video.video.publishedTimeText}{" "}
               </div>

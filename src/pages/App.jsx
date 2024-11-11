@@ -9,6 +9,9 @@ import ChannelPage from "./ChannelPage";
 import ProfilePage from "./ProfilePage";
 import FavoritesPage from "./FavoritesPage";
 import EditProfilePage from "./EditProfilePage";
+import ServerErrorPage from "./ServerErrorPage";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   return (
@@ -26,7 +29,9 @@ const App = () => {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/profile/edit" element={<EditProfilePage />} />
         <Route path="/favorites" element={<FavoritesPage />} />
+        <Route path="/server_error" element={<ServerErrorPage />} />
       </Routes>
+      <ToastContainer />
     </Router>
   );
 };

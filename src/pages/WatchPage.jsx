@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import VideoCard from "../components/VideoCard";
 import Navbar from "../components/Navbar";
 import SkeletonLoader from "../components/SkeletonLoader";
+import { fetchUser } from "../tools/utils";
 
 const WatchPage = () => {
   const [videoId, setVideoId] = useState(null);
@@ -18,10 +19,18 @@ const WatchPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // use effect to redirect if no token exists and if yes to fetch the user and store it in user state
   useEffect(() => {
-    if (!token) {
-      navigate("/login");
-    }
+    const getUser = async () => {
+      const response = await fetchUser(token);
+      if (response === "not logged in") {
+        navigate("/login");
+      }
+      if (response?.message && response?.message === "token is not valid") {
+        navigate("logout");
+      }
+    };
+    getUser();
   }, [location.search]);
 
   const getQParams = (query) => {
@@ -30,16 +39,19 @@ const WatchPage = () => {
 
   const favorite = async () => {
     if (isFavorite == true) {
-      const response = await fetch("http://localhost:3001/unfavorite_video", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          videoId,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/unfavorite_video`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            videoId,
+          }),
+        }
+      );
       const res = await response.json();
       if (res.status == "success") {
         console.log(res);
@@ -47,16 +59,19 @@ const WatchPage = () => {
         setIsFavorite(false);
       }
     } else {
-      const response = await fetch("http://localhost:3001/favorite_video", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          videoId,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/favorite_video`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            videoId,
+          }),
+        }
+      );
       const res = await response.json();
       if (res.status == "success") {
         console.log(res);
@@ -82,7 +97,7 @@ const WatchPage = () => {
       if (channelId !== null) {
         console.log(channelId);
         const res = await fetch(
-          `http://localhost:3001/channel_info?channel_id=${channelId}`,
+          `${process.env.REACT_APP_API_URL}/channel_info?channel_id=${channelId}`,
           {
             method: "GET",
             headers: {
@@ -97,7 +112,7 @@ const WatchPage = () => {
         setChannelInfo(data);
         setChannelInfoLoading(false);
       } else {
-        navigate("/login");
+        return;
       }
     };
     fetchChannelInfo();
@@ -114,7 +129,7 @@ const WatchPage = () => {
       ) {
         console.log(videoId + "when it matters");
         const res = await fetch(
-          `http://localhost:3001/related_videos?video_id=${videoId}`,
+          `${process.env.REACT_APP_API_URL}/related_videos?video_id=${videoId}`,
           {
             method: "GET",
             headers: {
@@ -134,20 +149,6 @@ const WatchPage = () => {
     };
     fetchRelatedVideos();
   }, [videoId]);
-
-  // const res = await fetch(`http://localhost:3001/related_videos?video_id=${videoId}`, {
-  //   method: 'GET',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     Accept: 'application/json',
-  //     Authorization: `Bearer ${token}`
-  //   }
-  // });
-  // const data = await res.json();
-  // resultsVideos = data;
-  // console.log('results', resultsVideos);
-  // };
-  // fetchRelatedVideos();
 
   return (
     <>
@@ -185,6 +186,8 @@ const WatchPage = () => {
                         width: "150px",
                         height: 150,
                         backgroundImage: `url("${channelInfo?.all_other?.avatar?.thumbnails[0]?.url}")`,
+                        backgroundSize: "cover",
+                        borderRadius: "50%",
                       }}
                     ></div>
                     <a href={`/channel?channelId=${channelId}`}>
@@ -195,7 +198,7 @@ const WatchPage = () => {
               </>
             )}
             <i
-              class={
+              className={
                 isFavorite
                   ? "fa-solid fa-heart fa-2xl fa-icon"
                   : "fa-regular fa-heart fa-2xl fa-icon"

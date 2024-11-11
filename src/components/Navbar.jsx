@@ -1,15 +1,19 @@
 import React from "react";
+import { fetchUser } from "../tools/utils";
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useFetchApi } from "../tools/useFetchApi";
-let loading = false;
+import { atom, useAtom } from "jotai";
+export const q = atom("");
+
 const searchIcon = "/public/search-icon.svg";
 
 const Navbar = ({ passResultsUpDown, setLoading, currentPage }) => {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [user, setUser] = useState({});
   const navigate = useNavigate();
-  const [q, setQ] = useState("");
+  const location = useLocation();
+  const [searchQuery, setQ] = useAtom(q); // Use the atom here
   const [errors, setErrors] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const fetchApi = useFetchApi();
@@ -20,51 +24,36 @@ const Navbar = ({ passResultsUpDown, setLoading, currentPage }) => {
   };
 
   const search = async (e) => {
-    // navigate("/");
     e.preventDefault();
     if (q == "") {
       return;
     }
     setLoading(true);
-    const data = await fetchApi(`http://localhost:3001/search?q=${q}`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    // const data = await res.json();
+    const data = await fetchApi(
+      `${process.env.REACT_APP_API_URL}/search?q=${searchQuery}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log(data);
     setLoading(false);
     passResultsUpDown(data);
   };
 
   useEffect(() => {
-    if (!token || token === null || token === "") {
-      navigate("/login");
-    }
-
     const getUser = async () => {
-      const response = await fetch("http://localhost:3001/user_data", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const res = await response.json();
-      console.log(res);
-      if (res?.user) {
-        setUser({
-          id: res.user.id,
-          first_name: res.user.first_name,
-          last_name: res.user.last_name,
-          email: res.user.email,
-          filter_level: res.user.filter_level,
-        });
-        console.log(user);
-      } else {
+      const response = await fetchUser(token);
+      console.log(response);
+      if (user === "not logged in") {
         navigate("/login");
+        return;
       }
+      setUser(response.user);
     };
     getUser();
-  }, [navigate]);
+  }, [location.search]);
 
   const initials = (firstName, lastName) => {
     const fullName = firstName + " " + lastName;
@@ -89,6 +78,7 @@ const Navbar = ({ passResultsUpDown, setLoading, currentPage }) => {
   return (
     <>
       <div className="topBar" onMouseLeave={handleShowProfileModalFullNavbar}>
+        {/* icon */}
         <a href="/">
           {/* <div className="logoDiv">
             <img src="https://picsum.photos/seed/picsum/50/50" alt="" />
@@ -96,52 +86,66 @@ const Navbar = ({ passResultsUpDown, setLoading, currentPage }) => {
           <i className="fa-solid fa-play fa-2xl"></i>
         </a>
 
+        {/* search bar only if homepage */}
         {currentPage === "homePage" && (
           <>
             <div className="searchBarDiv">
               <form onSubmit={search}>
                 <input
                   type="text"
-                  value={q}
+                  value={searchQuery}
                   onChange={handleSearchInputChange}
                 />
                 <button type="submit">
                   <i className="fa-solid fa-magnifying-glass"></i>
-                  {/* Reference the icon from the public directory */}
                 </button>
               </form>
             </div>
           </>
         )}
 
-        <Link
-          className="profile-initials-div"
-          to={"/profile"}
-          onMouseEnter={handleShowProfileModal}
-        >
-          {initials(user.first_name, user.last_name)}
-        </Link>
+        {/* profile modal */}
+        {user && (
+          <Link
+            className="profile-initials-div"
+            to={"/profile"}
+            onMouseEnter={handleShowProfileModal}
+          >
+            {initials(user.first_name, user.last_name)}
+          </Link>
+        )}
 
         <div
           className="profileModal"
-          style={{ display: showProfileModal ? "block" : "none" }}
+          style={{ display: showProfileModal ? "flex" : "none" }}
           onMouseLeave={handleShowProfileModal}
         >
-          {/* <div className="close-modal">
-            <button onClick={handleShowProfileModal}>X</button>
-          </div> */}
-          <Link
-            style={{
-              color: "black",
-              textDecoration: "underline",
-              display: "block",
-              fontSize: "1.5rem",
-            }}
-            to={"/logout"}
-          >
-            Log out
-          </Link>
-          <Link to={"/profile"}>View Profile</Link>
+          <div className="close-modal">
+            <button onClick={handleShowProfileModal}>
+              <i className="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <div className="modal-content">
+            <Link to={"/profile"}>View Profile</Link>
+            <br />
+            <Link to={"/favorites"}>View Favroites</Link>
+          </div>
+
+          <div className="logout-modal-div">
+            <i className="fa-solid fa-right-from-bracket"></i>
+            <Link
+              style={{
+                color: "black",
+                textDecoration: "underline",
+                display: "block",
+                fontSize: "1.5rem",
+              }}
+              to={"/logout"}
+            >
+              Log Out
+            </Link>
+          </div>
         </div>
       </div>
     </>
