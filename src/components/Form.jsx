@@ -77,7 +77,18 @@ const Form = ({ accountState }) => {
         navigate("/");
       }
     } catch (error) {
-      console.log("Login failed:", error);
+      // console.log("Login failed:", error);
+      toast.error("Could not connect right now", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
     }
     setLoggingIn(false);
   };

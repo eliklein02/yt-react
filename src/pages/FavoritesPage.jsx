@@ -8,7 +8,7 @@ const FavoritesPage = () => {
   const navigate = useNavigate();
   const [token, setToken] = useState(localStorage.getItem("token"));
   const location = useLocation();
-  const [favoriteIds, setFavoriteIds] = useState(null);
+  const [favoriteIds, setFavoriteIds] = useState([]);
   const [favorites, setFavorites] = useState(null);
   const [favoritesLoadingFromRails, setFavoritesLoadingFromRails] =
     useState(true);
@@ -71,7 +71,7 @@ const FavoritesPage = () => {
 
   useEffect(() => {
     const fetchFavorites = async () => {
-      if (favoriteIds !== null) {
+      if (favoriteIds.length > 0) {
         const fetchedFavorites = await Promise.all(
           favoriteIds.map(async (f) => {
             const url = `https://yt-api.p.rapidapi.com/video/info?id=${f}`;
@@ -86,6 +86,7 @@ const FavoritesPage = () => {
             try {
               const response = await fetch(url, options);
               const result = await response.json();
+              console.log(result);
               return result;
             } catch (error) {
               console.error(error);
@@ -93,7 +94,7 @@ const FavoritesPage = () => {
             }
           })
         );
-        setFavorites(fetchedFavorites.filter((f) => f !== null)); // Filter out any null results
+        setFavorites(fetchedFavorites);
         setFavoritesLoadingFromAPI(false);
       }
     };
@@ -119,6 +120,7 @@ const FavoritesPage = () => {
               <a
                 href={`/watch?videoId=${d.id}&channelId=${d.channelId}&videoTitle=${d.title}`}
                 target="_self"
+                key={d.videoId}
               >
                 <div className="video-card">
                   <div className="thumbnail">
