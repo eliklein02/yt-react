@@ -13,7 +13,7 @@ export const fetchUser = async (token) => {
       return data;
     } catch (error) {
       window.location.href = "/server_error";
-      // console.log(error);
+      console.log(error);
     }
   }
 };

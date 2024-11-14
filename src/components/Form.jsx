@@ -6,9 +6,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast, Bounce } from "react-toastify";
 
 const Form = ({ accountState }) => {
-  const toastifyLoginSuccess = () => {
-    toast("You are logged in!");
-  };
+  // const toastifyLoginSuccess = () => {
+  //   toast("You are logged in!");
+  // };
   const [errors, setErrors] = useState([]);
 
   const navigate = useNavigate();
@@ -62,6 +62,17 @@ const Form = ({ accountState }) => {
         setErrors(res.message);
       } else {
         console.log(res);
+        toast.success(JSON.stringify(res), {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
         localStorage.setItem("token", res.token);
         toast.success("Logged In Successfully!", {
           position: "top-right",

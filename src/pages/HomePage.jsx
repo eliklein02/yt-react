@@ -77,7 +77,7 @@ const HomePage = () => {
       if (response?.message && response?.message === "token is not valid") {
         navigate("logout");
       }
-      setUser(response.user);
+      // setUser(response.user);
     };
     getUser();
   }, [location.search]);
