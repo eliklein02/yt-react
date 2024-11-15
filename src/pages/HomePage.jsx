@@ -56,6 +56,7 @@ const HomePage = () => {
       const data = await fetchApi(url, {
         headers: {
           "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "69420",
         },
       });
       // console.log(data);
@@ -77,7 +78,7 @@ const HomePage = () => {
       if (response?.message && response?.message === "token is not valid") {
         navigate("logout");
       }
-      // setUser(response.user);
+      setUser(response.user);
     };
     getUser();
   }, [location.search]);
